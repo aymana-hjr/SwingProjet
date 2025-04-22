@@ -57,6 +57,12 @@ public class AdminDashboardSwing extends JFrame {
                     new AdminDashboardSwing().setVisible(true);
                 });
             }
+            if(text.equals("Réservations")){
+                btn.addActionListener(e->{
+
+                    new ListeReservation().setVisible(true);
+                });
+            }
 
 
             sidebar.add(btn);
