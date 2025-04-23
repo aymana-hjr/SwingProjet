@@ -63,6 +63,17 @@ public class AdminDashboardSwing extends JFrame {
                     new ListeReservation().setVisible(true);
                 });
             }
+            if(text.equals("Clients")){
+                btn.addActionListener(e->{
+
+                    new Clients().setVisible(true);
+                });
+            }
+            if(text.equals("Déconnexion")){
+                btn.addActionListener(e->logout());
+
+
+            }
 
 
             sidebar.add(btn);
@@ -116,6 +127,13 @@ public class AdminDashboardSwing extends JFrame {
         add(header, BorderLayout.NORTH);
         add(content, BorderLayout.CENTER);
         loadDataFromDatabase();
+    }
+    private void logout() {
+        int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (choice == JOptionPane.YES_OPTION) {
+            dispose();
+            new LoginUI();
+        }
     }
 
     private JButton createSidebarButton(String text, Font font, Color bg, Color hoverColor) {
