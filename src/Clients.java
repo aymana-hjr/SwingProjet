@@ -58,6 +58,27 @@ public class Clients extends JFrame {
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.setRowHeight(28);
         table.setGridColor(new Color(189, 195, 199));
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() == 2) { // double-clic
+                    int row = table.getSelectedRow();
+                    if (row != -1) {
+                        String id = table.getValueAt(row, 0).toString();
+                        String nom = table.getValueAt(row, 1).toString();
+                        String prenom = table.getValueAt(row, 2).toString();
+                        String numero = table.getValueAt(row, 3).toString();
+                        String email = table.getValueAt(row, 4).toString();
+
+
+                        // Ouvrir le formulaire de modification
+                        new FormModifierClient(id,nom,prenom,numero,email);
+
+
+                    }
+                }
+            }
+        });
     }
 
     private void loadClients() {
@@ -87,6 +108,8 @@ public class Clients extends JFrame {
             JOptionPane.showMessageDialog(this, "Erreur lors du chargement des clients : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+
 
 
 }

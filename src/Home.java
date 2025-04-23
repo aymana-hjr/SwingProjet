@@ -11,7 +11,7 @@ public class Home implements ActionListener {
         // Frame properties
         frame.setVisible(true);
         frame.setTitle("LogeFacile");
-        frame.setSize(700, 550);
+        frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 

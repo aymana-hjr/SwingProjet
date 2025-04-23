@@ -5,19 +5,21 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
-public class FormAjouterClient extends JFrame {
+public class FormModifierClient extends JFrame {
 
     private JTextField nomField, prenomField, numeroField, emailField;
-    private JPasswordField passwordField;
+    private String userId;
     private JButton saveButton;
+
 
     private final Color PRIMARY_COLOR = new Color(41, 128, 185);
     private final Color TEXT_COLOR = new Color(44, 62, 80);
     private final Color ACCENT_COLOR = new Color(26, 188, 156);
     private final Color LIGHT_GRAY = new Color(236, 240, 241);
 
-    public FormAjouterClient() {
-        setTitle("Ajouter une Personne");
+    public FormModifierClient(String id, String nom, String prenom, String numero, String email) {
+        this.userId = id;
+        setTitle("Modifier Client - " + id);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(600, 650);
         setLocationRelativeTo(null);
@@ -45,7 +47,7 @@ public class FormAjouterClient extends JFrame {
         headerPanel.setOpaque(false);
         headerPanel.setBorder(new EmptyBorder(0, 0, 25, 0));
 
-        JLabel headerLabel = new JLabel("Ajouter une Personne");
+        JLabel headerLabel = new JLabel("Modifier Client");
         headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
         headerLabel.setForeground(PRIMARY_COLOR);
         headerLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -59,14 +61,13 @@ public class FormAjouterClient extends JFrame {
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setOpaque(false);
 
-        nomField = createStyledTextField("Nom");
-        prenomField = createStyledTextField("Prénom");
-        numeroField = createStyledTextField("Numéro");
-        emailField = createStyledTextField("Email");
-        passwordField = createStyledPasswordField("Mot de Passe");
+        nomField = createStyledTextField(nom);
+        prenomField = createStyledTextField(prenom);
+        numeroField = createStyledTextField(numero);
+        emailField = createStyledTextField(email);
 
-        String[] labels = {"Nom :", "Prénom :", "Numéro :", "Email :","Password :"};
-        Component[] fields = {nomField, prenomField, numeroField, emailField,passwordField};
+        String[] labels = {"Nom :", "Prenom :", "Numero :", "Email :"};
+        Component[] fields = {nomField, prenomField, numeroField, emailField};
 
         for (int i = 0; i < labels.length; i++) {
             JPanel rowPanel = new JPanel(new BorderLayout(10, 0));
@@ -82,8 +83,8 @@ public class FormAjouterClient extends JFrame {
             rowPanel.add(fields[i], BorderLayout.CENTER);
 
             formPanel.add(rowPanel);
-        }
 
+        }
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         buttonPanel.setOpaque(false);
 
@@ -91,7 +92,7 @@ public class FormAjouterClient extends JFrame {
         cancelButton.addActionListener(e -> dispose());
 
         saveButton = createStyledButton("Enregistrer", ACCENT_COLOR);
-        saveButton.addActionListener(e -> ajouterPersonne());
+        saveButton.addActionListener(e -> updateClient());
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
@@ -106,20 +107,18 @@ public class FormAjouterClient extends JFrame {
 
         setContentPane(mainPanel);
         setVisible(true);
-    }
 
-    private JTextField createStyledTextField(String placeholder) {
-        JTextField textField = new JTextField();
+    }
+    private JTextField createStyledTextField(String text) {
+        JTextField textField = new JTextField(text);
         textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         textField.setForeground(TEXT_COLOR);
         textField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(LIGHT_GRAY, 1),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)
         ));
-        textField.setToolTipText(placeholder); // Utiliser un tooltip comme placeholder
         return textField;
     }
-
     private JButton createStyledButton(String text, Color bgColor) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -129,52 +128,35 @@ public class FormAjouterClient extends JFrame {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return button;
     }
-    private JPasswordField createStyledPasswordField(String placeholder) {
-        JPasswordField passwordField = new JPasswordField();
-        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        passwordField.setForeground(TEXT_COLOR);
-        passwordField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(LIGHT_GRAY, 1),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)
-        ));
-        passwordField.setToolTipText(placeholder); // Utiliser un tooltip comme placeholder
-        return passwordField;
-    }
 
-    private void ajouterPersonne() {
-        String nom = nomField.getText().trim();
-        String prenom = prenomField.getText().trim();
-        String numero = numeroField.getText().trim();
-        String email = emailField.getText().trim();
-        String password = new String(passwordField.getPassword()).trim(); // Assurez-vous de récupérer la valeur du champ mot de passe
-
-        // Validation des champs
-        if (nom.isEmpty() || prenom.isEmpty() || numero.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tous les champs doivent être remplis, y compris le mot de passe.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
+    private void updateClient() {
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/LogeFacile", "root", "Aymane2004@")) {
-            String sql = "INSERT INTO users (nom, prenom, numero, email, password) VALUES (?, ?, ?, ?, ?)";
+            // Requête SQL pour mettre à jour les informations du client
+            String sql = "UPDATE users SET nom=?, prenom=?, numero=?, email=? WHERE id=?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, nom);
-                stmt.setString(2, prenom);
-                stmt.setString(3, numero);
-                stmt.setString(4, email);
-                stmt.setString(5, password);
+                // Récupérer les valeurs entrées par l'utilisateur dans les champs
+                stmt.setString(1, nomField.getText());
+                stmt.setString(2, prenomField.getText());
+                stmt.setString(3, numeroField.getText());
+                stmt.setString(4, emailField.getText());
+                stmt.setInt(5, Integer.parseInt(userId.replace("M", ""))); // Utilisation de l'id pour identifier le client à mettre à jour
 
-                int rowsInserted = stmt.executeUpdate();
+                // Exécuter la requête de mise à jour
+                int rowsAffected = stmt.executeUpdate();
 
-                if (rowsInserted > 0) {
-                    JOptionPane.showMessageDialog(this, "Personne ajoutée avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
-                    dispose(); // Fermer la fenêtre après l'ajout
+                if (rowsAffected > 0) {
+                    // Afficher un message de succès si la mise à jour est réussie
+                    JOptionPane.showMessageDialog(this, "Client mis à jour avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
+                    dispose(); // Fermer la fenêtre après la mise à jour
                 } else {
-                    JOptionPane.showMessageDialog(this, "Erreur lors de l'ajout de la personne.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    // Si aucune ligne n'a été mise à jour, afficher un message d'erreur
+                    JOptionPane.showMessageDialog(this, "Erreur : Aucun client trouvé avec cet ID.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 }
             }
         } catch (Exception e) {
+            // Gestion des exceptions et affichage d'un message d'erreur
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erreur lors de la mise à jour du client : " + e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
